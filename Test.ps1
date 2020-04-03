@@ -1,4 +1,4 @@
-﻿Import-Module -Name .\PlainRequest
+﻿Import-Module -Name .\PlainRequest.psm1
 
 $Sample = "{TokenUrl}, {ClientSecret}, {ClientId}, {AuthResource} - {NotExistItem}"
 $Data = @{
