@@ -69,7 +69,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
 
             "
 
-            $Response = Invoke-PlainRequest -Template $GetSample -Context $Data
+            $Response = Invoke-PlainRequest -Syntax $GetSample -Context $Data
             $Response | Should Not BeNullOrEmpty
         }
 
@@ -97,7 +97,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
                 "value": "{Value}"
             }'
 
-            $Response = Invoke-PlainRequest -Template $GetSample -Context $Data
+            $Response = Invoke-PlainRequest -Syntax $GetSample -Context $Data
             $Response | Should Not BeNullOrEmpty
         }
     }

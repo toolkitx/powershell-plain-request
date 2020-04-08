@@ -44,7 +44,7 @@ function Get-WebRequestDefinition() {
         [PSObject]$Context
     )
     $RequestObject = @{};
-    $EndpointPattern = "^\s+(Get|Post|Put|Delete|Patch)\s+(.*?)$"
+    $EndpointPattern = "^\s+(GET|POST|PUT|DELETE|PATCH)\s+(.*?)$"
     $HeaderPattern = "^\s+([a-zA-Z\-]+):\s+(.*?)$"
     $PayloadPattern = "^\s+{([\s\S]*)}$"
 
@@ -52,7 +52,8 @@ function Get-WebRequestDefinition() {
     if (!$BasicMatches.Success -or ($BasicMatches.Groups.Count -ne 3)) {
         return @{Success= $false}
     } 
-    $RequestObject.Add("Method", $BasicMatches.Groups[1].Value)
+    $Method = Get-RequestMethod -InputMethod $BasicMatches.Groups[1].Value
+    $RequestObject.Add("Method", $Method)
     $Uri = Get-Translation -Template $BasicMatches.Groups[2].Value -Context $Context
     $RequestObject.Add("Uri", $Uri)
 
@@ -75,18 +76,28 @@ function Get-WebRequestDefinition() {
     return $RequestObject
 }
 
+function Get-RequestMethod() {
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]$InputMethod
+    )
+    $Method = $InputMethod.substring(0,1).toUpper() + $InputMethod.substring(1).toLower()  
+    return $Method
+}
+
 
 function Invoke-PlainRequest() {
     [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string]$Template,
+        [string]$Syntax,
         [Parameter(Mandatory = $false)]
         [PSObject]$Context = @{}
     )
 
-    $Request = Get-WebRequestDefinition -Template $Template -Context $Context    
+    $Request = Get-WebRequestDefinition -Template $Syntax -Context $Context    
     return Invoke-RestMethod -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType "application/json" -usebasicparsing
 }
 
