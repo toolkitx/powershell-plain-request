@@ -44,9 +44,9 @@ function Get-WebRequestDefinition() {
         [PSObject]$Context
     )
     $RequestObject = @{};
-    $EndpointPattern = "^(\w+)\s+(.*?)$"
-    $HeaderPattern = "^([a-zA-Z\-]+):\s+(.*?)$"
-    $PayloadPattern = "^{([\s\S]*)}$"
+    $EndpointPattern = "^\s+(Get|Post|Put|Delete|Patch)\s+(.*?)$"
+    $HeaderPattern = "^\s+([a-zA-Z\-]+):\s+(.*?)$"
+    $PayloadPattern = "^\s+{([\s\S]*)}$"
 
     $BasicMatches = Get-Matches -Content $Template -Pattern $EndpointPattern
     if (!$BasicMatches.Success -or ($BasicMatches.Groups.Count -ne 3)) {
@@ -86,7 +86,7 @@ function Invoke-PlainRequest() {
         [PSObject]$Context = @{}
     )
 
-    $Request = Get-WebRequestDefinition -Template $Template -Context $Data    
+    $Request = Get-WebRequestDefinition -Template $Template -Context $Context    
     return Invoke-RestMethod -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType "application/json" -usebasicparsing
 }
 
