@@ -26,7 +26,7 @@ jobs:
       run:  apt-get install -y powershell	
     
     - name: Run test
-      run:  
+      run: |
       Install-Module -Name Pester -Force
       pwsh ./SimpleRequest/Tests/SimpleRequest.Tests.ps1
 
