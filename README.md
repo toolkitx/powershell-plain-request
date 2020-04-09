@@ -67,7 +67,7 @@ $Data = @{
 }
 
 $Sample = '
-Post https://httpbin.org/post?id={{Id}}
+POST https://httpbin.org/post?id={{Id}}
 
 Content-Type: application/json
 Authorization: Bearer {{QIBToken}}
@@ -80,6 +80,15 @@ Authorization: Bearer {{QIBToken}}
 $Response = Invoke-SimpleRequest -Syntax $Sample -Context $Data
 ```
 
+### Compose several requests in a single syntax
+Compose several requests in a single syntax, separate by `###`
+```
+GET https://httpbin.org/ip
+
+### 
+
+GET https://httpbin.org/anything
+```
 
 ### TODO
 
