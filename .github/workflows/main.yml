@@ -27,6 +27,6 @@ jobs:
     
     - name: Run test
       run:  
-      Install-Module -Name pester -Force
+      Install-Module -Name Pester -Force
       pwsh ./SimpleRequest/Tests/SimpleRequest.Tests.ps1
 
