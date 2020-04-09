@@ -57,6 +57,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
 
             Authorization: AuthToken
             x-custom-header: CustomHeader
+            Content-Type: application/json
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
@@ -64,6 +65,18 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             $Headers = ($Response.Content | ConvertFrom-Json).headers
             $Headers.Authorization | Should -eq "AuthToken"
             $Headers."x-custom-header" | Should -eq "CustomHeader"
+        }
+
+        It "Should support url variable" {
+            
+            $syntax = "
+            GET https://httpbin.org/anything?id=1
+            "
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq "1"
         }
 
         It "Should send DELETE request" {
@@ -166,7 +179,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             $Content.json.value | Should -eq $data.Value
         }
 
-        It "Should send mutiple requests" {
+        It "Should compose several requests in a single syntax" {
             $Data = @{
                 "TokenUrl"     = 111
                 "ClientSecret" = "222"

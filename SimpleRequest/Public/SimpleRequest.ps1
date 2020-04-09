@@ -104,7 +104,11 @@ function Invoke-SimpleRequest() {
     else {
         $RequestSyntaxes | ForEach-Object  {
             $Request = Get-WebRequestDefinition -Template $_ -Context $Context    
-            Invoke-WebRequest -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType "application/json"
+            $ContentType = "application/json"
+            if ($Request.Headers."Content-Type") {
+                $ContentType = $Request.Headers."Content-Type";
+            } 
+            Invoke-WebRequest -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType $ContentType
         }
     }
 }
