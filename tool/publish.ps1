@@ -6,6 +6,6 @@ $NewModulePath += ";$ModulePath"
 [Environment]::SetEnvironmentVariable("PSModulePath", $NewModulePath)
 Write-Host $NewModulePath
 
-Publish-Module -Name PlainRequest -NuGetApiKey yourkey
+Publish-Module -Name SimpleRequest -NuGetApiKey yourkey
 
 [Environment]::SetEnvironmentVariable("PSModulePath", $OriginalModulePath)

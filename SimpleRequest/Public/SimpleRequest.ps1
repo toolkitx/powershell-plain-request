@@ -19,7 +19,7 @@ function Get-Translation() {
         [PSObject]$Context
     )
     
-    $Pattern = "{(.*?)}"
+    $Pattern = "{{(.*?)}}"
     $Matches1 = Get-Matches -Content $Template -Pattern $Pattern
     $Result = $Template
 
@@ -44,9 +44,9 @@ function Get-WebRequestDefinition() {
         [PSObject]$Context
     )
     $RequestObject = @{};
-    $EndpointPattern = "^\s+(GET|POST|PUT|DELETE|PATCH)\s+(.*?)$"
-    $HeaderPattern = "^\s+([a-zA-Z\-]+):\s+(.*?)$"
-    $PayloadPattern = "^\s+{([\s\S]*)}$"
+    $EndpointPattern = "^\s*?(GET|POST|PUT|DELETE|PATCH)\s+(.*?)$"
+    $HeaderPattern = "^\s*?([a-zA-Z\-]+):\s*(.*?)$"
+    $PayloadPattern = "^\s*?{([\s\S]*)}$"
 
     $BasicMatches = Get-Matches -Content $Template -Pattern $EndpointPattern
     if (!$BasicMatches.Success -or ($BasicMatches.Groups.Count -ne 3)) {
@@ -69,8 +69,8 @@ function Get-WebRequestDefinition() {
     $PayloadMatches = Get-Matches -Content $Template -Pattern $PayloadPattern
     if ($PayloadMatches.Success) {
         $Raw = Get-Translation -Template $PayloadMatches.Value -Context $Context
-        $Payload = $Raw | ConvertFrom-Json
-        $RequestObject.Add("Body", $Payload)
+        #$Payload = $Raw | ConvertFrom-Json
+        $RequestObject.Add("Body", $Raw)
     } 
     $RequestObject.Add("Success", $true);
     return $RequestObject
@@ -87,7 +87,7 @@ function Get-RequestMethod() {
 }
 
 
-function Invoke-PlainRequest() {
+function Invoke-SimpleRequest() {
     [CmdletBinding()]
     param
     (
@@ -96,9 +96,17 @@ function Invoke-PlainRequest() {
         [Parameter(Mandatory = $false)]
         [PSObject]$Context = @{}
     )
-
-    $Request = Get-WebRequestDefinition -Template $Syntax -Context $Context    
-    return Invoke-RestMethod -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType "application/json" -usebasicparsing
+    $Spliter = '#{3,}'
+    $RequestSyntaxes = [regex]::Split($Syntax, $Spliter)
+    if ($RequestSyntaxes.Length -eq 0) {
+        return null
+    }
+    else {
+        $RequestSyntaxes | ForEach-Object  {
+            $Request = Get-WebRequestDefinition -Template $_ -Context $Context    
+            Invoke-WebRequest -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType "application/json"
+        }
+    }
 }
 
-Export-ModuleMember -Function Invoke-PlainRequest
+Export-ModuleMember -Function Invoke-SimpleRequest

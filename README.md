@@ -1,6 +1,6 @@
-PlainRequest
+SimpleRequest
 =============
-PlainRequest is inspired by the HTTP Client in WebStrom, allow you to
+SimpleRequest is inspired by the HTTP Client in WebStrom, allow you to
 
 - Compose an HTTP request by using general syntax
 - Use variables to parametrize elements
@@ -12,14 +12,14 @@ PlainRequest is inspired by the HTTP Client in WebStrom, allow you to
 Running this PowerShell command
 
 ```ps
-Install-Module -Name PlainRequest	
+Install-Module -Name SimpleRequest	
 ```
 
 
 ## Syntax
 
 ```
-Method Request-URI
+METHOD Request-URI
 Header-field: Header-value
 
 Request-Body
@@ -27,7 +27,7 @@ Request-Body
 
 Compose HTTP request as bellow:
 ```ps
-Invoke-PlainRequest -Syntax $Syntax [-Context $ContextData]
+Invoke-SimpleRequest -Syntax $Syntax [-Context $ContextData]
 ```
 
 ### Get Request Syntax
@@ -51,7 +51,7 @@ Content-Type: application/json
 
 ## Use Variables
 
-When composing an HTTP request, you can parametrize its elements by using variables. To provide the variable inside the request, enclose it in double curly braces as `{variable}`. 
+When composing an HTTP request, you can parametrize its elements by using variables. To provide the variable inside the request, enclose it in double curly braces as `{{variable}}`. 
 
 ```PS
 $Data = @{
@@ -67,17 +67,17 @@ $Data = @{
 }
 
 $Sample = '
-Post https://httpbin.org/post?id={Id}
+Post https://httpbin.org/post?id={{Id}}
 
 Content-Type: application/json
-Authorization: Bearer {QIBToken}
+Authorization: Bearer {{QIBToken}}
 
 {
-    "id": {Id},
-    "value": "{Value}"
+    "id": {{Id}},
+    "value": "{{Value}}"
 }'
 
-$Response = Invoke-PlainRequest -Syntax $Sample -Context $Data
+$Response = Invoke-SimpleRequest -Syntax $Sample -Context $Data
 ```
 
 
@@ -85,7 +85,7 @@ $Response = Invoke-PlainRequest -Syntax $Sample -Context $Data
 
 - [ ] Support compose requests from single file
 - [ ] Predefined dynamic variables
-- [ ] Compose several requests in a single syntax, separate by `###`
+- [x] Compose several requests in a single syntax, separate by `###`
 - [ ] Break long requests into several lines
 - [ ] Support multipart/form-data content type
 - [ ] Export response to file
