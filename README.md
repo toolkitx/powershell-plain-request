@@ -6,6 +6,7 @@ SimpleRequest is inspired by the HTTP Client in WebStrom, allow you to
 - Use variables to parametrize elements
 - Intergate with Pester
 
+![CI](https://github.com/toolkitx/simple-request/workflows/CI/badge.svg?branch=master)
 
 ## Installation
 
