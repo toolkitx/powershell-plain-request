@@ -26,4 +26,3 @@ jobs:
       shell: pwsh
       run: |
       Install-Module Pester -Force
-      ./SimpleRequest/Tests/SimpleRequest.Tests.ps1
