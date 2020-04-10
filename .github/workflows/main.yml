@@ -28,7 +28,5 @@ jobs:
 
     - name: Run Test
       shell: pwsh
-      run: |
-      echo $GITHUB_WORKSPACE
-      SimpleRequest/Tests/SimpleRequest.Tests.ps1
+      run: SimpleRequest/Tests/SimpleRequest.Tests.ps1
       
