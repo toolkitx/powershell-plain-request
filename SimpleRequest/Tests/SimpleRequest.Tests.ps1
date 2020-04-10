@@ -14,6 +14,11 @@ $ExportedFunctions = $ModuleInformation.ExportedFunctions.Values.Name
 # Get the functions present in the Public folder
 $PS1Functions = Get-ChildItem -Path "$ModulePath\Public\*.ps1"
 
+$data = @{
+    "Id"           = 99
+    "Value"        = "Content"
+}
+
 Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
     Context "Manifest" {
         It "Should contain RootModule" {
@@ -47,17 +52,58 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
                 $Compare.InputObject -Join ',' | Should BeNullOrEmpty
             }
         }
-    } 
+    }
     
-    Context "Request" {
+    Context "Request Method" {
         It "Should send GET request" {
+            
+            $syntax = "GET https://httpbin.org/get"
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+        }
+
+        It "Should send POST request" {
+            
+            $syntax = "POST https://httpbin.org/post"
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+        }
+
+        It "Should send PUT request" {
+            
+            $syntax = "PUT https://httpbin.org/put"
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+        }
+
+        It "Should send PATCH request" {
+            
+            $syntax = "PATCH https://httpbin.org/patch"
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+        }
+
+        It "Should send DELETE request" {
+            
+            $syntax = "DELETE https://httpbin.org/delete"
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+        }
+    }
+
+    Context "Request Headers" {
+        It "Should send GET headers" {
             
             $syntax = "
             GET https://httpbin.org/anything
 
             Authorization: AuthToken
             x-custom-header: CustomHeader
-            Content-Type: application/json
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
@@ -67,19 +113,55 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             $Headers."x-custom-header" | Should -eq "CustomHeader"
         }
 
-        It "Should support url variable" {
+        It "Should send POST headers" {
             
             $syntax = "
-            GET https://httpbin.org/anything?id=1
+            POST https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
             $Response.StatusCode | Should -eq 200
-            $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq "1"
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
         }
 
-        It "Should send DELETE request" {
+        It "Should send PUT headers" {
+            
+            $syntax = "
+            PUT https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
+            "
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+        }
+
+        It "Should send PATCH headers" {
+            
+            $syntax = "
+            PATCH https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
+            "
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+        }
+
+        It "Should send DELETE headers" {
             
             $syntax = "
             DELETE https://httpbin.org/anything
@@ -94,74 +176,133 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             $Headers.Authorization | Should -eq "AuthToken"
             $Headers."x-custom-header" | Should -eq "CustomHeader"
         }
+    }
 
-        It "Should send POST request" {
-            $data = @{
-                "Id"           = 99
-                "Value"        = "Content"
+    Context "Request Payload" {
+        It "Should ignore GET payload" {
+            
+            $syntax = '
+            GET https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
+            {
+                "id": 1,
+                "value": "Value"
             }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json | Should BeNullOrEmpty
+        }
+
+        It "Should send POST payload" {
+            
             $syntax = '
             POST https://httpbin.org/anything
 
             Authorization: AuthToken
             x-custom-header: CustomHeader
-
+            
             {
-                "id": {{Id}},
-                "value": "{{Value}}"
+                "id": 1,
+                "value": "Value"
             }
             '
 
-            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response = Invoke-SimpleRequest -Syntax $syntax
             $Response.StatusCode | Should -eq 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
             $Headers.Authorization | Should -eq "AuthToken"
             $Headers."x-custom-header" | Should -eq "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
+            $Content.json.id | Should -eq 1
+            $Content.json.value | Should -eq "Value"
         }
 
-
-        It "Should send PATCH request" {
+        It "Should send PUT payload" {
             
-            $data = @{
-                "Id"           = 99
-                "Value"        = "Content"
-            }
-            $syntax = '
-            PATCH https://httpbin.org/anything
-
-            Authorization: AuthToken
-            x-custom-header: CustomHeader
-
-            {
-                "id": {{Id}},
-                "value": "{{Value}}"
-            }
-            '
-
-            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
-            $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
-            $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
-        }
-
-        It "Should send PUT request" {
-            
-            $data = @{
-                "Id"           = 99
-                "Value"        = "Content"
-            }
             $syntax = '
             PUT https://httpbin.org/anything
 
             Authorization: AuthToken
             x-custom-header: CustomHeader
+            {
+                "id": 1,
+                "value": "Value"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq 1
+            $Content.json.value | Should -eq "Value"
+        }
+
+        It "Should send PATCH payload" {
+            
+            $syntax = '
+            PATCH https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
+            {
+                "id": 1,
+                "value": "Value"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq 1
+            $Content.json.value | Should -eq "Value"
+        }
+
+        It "Should send DELETE payload" {
+            
+            $syntax = '
+            DELETE https://httpbin.org/anything
+
+            Authorization: AuthToken
+            x-custom-header: CustomHeader
+            {
+                "id": 1,
+                "value": "Value"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq 1
+            $Content.json.value | Should -eq "Value"
+        }
+    }
+
+    Context "Request variable" {
+        It "Should GET support variable" {
+            
+            $syntax = '
+            GET https://httpbin.org/anything?id={{Id}}
+
+            Authorization: AuthToken
+            x-custom-header: {{Value}}
 
             {
                 "id": {{Id}},
@@ -171,27 +312,123 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
             $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
             $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers."x-custom-header" | Should -eq $data.Value
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json | Should BeNullOrEmpty
+        }
+
+        It "Should POST support variable" {
+
+            $syntax = '
+            POST https://httpbin.org/anything?id={{Id}}
+
+            Authorization: AuthToken
+            x-custom-header: {{Value}}
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq $data.Id
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq $data.Value
             $Content = $Response.Content | ConvertFrom-Json
             $Content.json.id | Should -eq $data.Id
             $Content.json.value | Should -eq $data.Value
         }
 
-        It "Should compose several requests in a single syntax" {
-            $Data = @{
-                "TokenUrl"     = 111
-                "ClientSecret" = "222"
-                "ClientId"     = "333"
-                "AuthResource" = "444"
-                "Username"     = "User1"
-                "Password"     = "Password"
-                "Id"           = 99
-                "Price"        = 0.99
-                "Value"        = "Content"
+        It "Should PUT support variable" {
+
+            $syntax = '
+            PUT https://httpbin.org/anything?id={{Id}}
+
+            Authorization: AuthToken
+            x-custom-header: {{Value}}
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
             }
-            
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq $data.Id
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq $data.Value
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq $data.Id
+            $Content.json.value | Should -eq $data.Value
+        }
+
+        It "Should PATCH support variable" {
+
+            $syntax = '
+            PATCH https://httpbin.org/anything?id={{Id}}
+
+            Authorization: AuthToken
+            x-custom-header: {{Value}}
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq $data.Id
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq $data.Value
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq $data.Id
+            $Content.json.value | Should -eq $data.Value
+        }
+
+        It "Should DELETE support variable" {
+
+            $syntax = '
+            DELETE https://httpbin.org/anything?id={{Id}}
+
+            Authorization: AuthToken
+            x-custom-header: {{Value}}
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response.StatusCode | Should -eq 200
+            $args = ($Response.Content | ConvertFrom-Json).args
+            $args.id | Should -eq $data.Id
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq $data.Value
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq $data.Id
+            $Content.json.value | Should -eq $data.Value
+        }
+    }
+
+    Context "Multiline Requests" {
+        It "Should compose several requests in a single syntax" {
+
             $syntax = '
             GET https://httpbin.org/get
 
@@ -200,7 +437,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
 
             ###
 
-            POST https://httpbin.org/post
+            POST https://httpbin.org/anything
 
             Content-Type: application/json
 
@@ -209,7 +446,7 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             }
             '
 
-            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $Data
+            $Response = Invoke-SimpleRequest -Syntax $syntax
             $Response.Count | Should -eq 2
 
             $Response1 = $Response[0]
@@ -218,13 +455,13 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
             $Headers.Authorization | Should -eq "AuthToken"
             $Headers."x-custom-header" | Should -eq "CustomHeader"
 
-
             $Response2 = $Response[1]
             $Response2.StatusCode | Should -eq 200
             $Content = $Response2.Content | ConvertFrom-Json
             $Content.json.id | Should -eq 1
         }
     }
+    
 }
 
 Get-Module -Name $ModuleName | Remove-Module

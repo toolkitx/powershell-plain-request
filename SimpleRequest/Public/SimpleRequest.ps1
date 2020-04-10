@@ -46,31 +46,31 @@ function Get-WebRequestDefinition() {
     $RequestObject = @{};
     $EndpointPattern = "^\s*?(GET|POST|PUT|DELETE|PATCH)\s+(.*?)$"
     $HeaderPattern = "^\s*?([a-zA-Z\-]+):\s*(.*?)$"
-    $PayloadPattern = "^\s*?{([\s\S]*)}$"
+    $PayloadPattern = "^\s*{([\s\S]*)}\s*$"
 
     $BasicMatches = Get-Matches -Content $Template -Pattern $EndpointPattern
     if (!$BasicMatches.Success -or ($BasicMatches.Groups.Count -ne 3)) {
         return @{Success= $false}
     } 
     $Method = Get-RequestMethod -InputMethod $BasicMatches.Groups[1].Value
-    $RequestObject.Add("Method", $Method)
+    $RequestObject.Add("Method", $Method.Trim())
     $Uri = Get-Translation -Template $BasicMatches.Groups[2].Value -Context $Context
-    $RequestObject.Add("Uri", $Uri)
+    $RequestObject.Add("Uri", $Uri.Trim())
 
     $HeaderMatches = Get-Matches -Content $Template -Pattern $HeaderPattern
     if ($HeaderMatches.Success) {
         $Headers = @{};
         $HeaderMatches | ForEach-Object {
             $HeaderValue = Get-Translation -Template $_.Groups[2] -Context $Context
-            $Headers.Add($_.Groups[1].Value, $HeaderValue)
+            $Headers.Add($_.Groups[1].Value, $HeaderValue.Trim())
         }
         $RequestObject.Add("Headers", $Headers)
     } 
     $PayloadMatches = Get-Matches -Content $Template -Pattern $PayloadPattern
-    if ($PayloadMatches.Success) {
+    if ($PayloadMatches.Success -and ($Method -ne "Get")) {
         $Raw = Get-Translation -Template $PayloadMatches.Value -Context $Context
         #$Payload = $Raw | ConvertFrom-Json
-        $RequestObject.Add("Body", $Raw)
+        $RequestObject.Add("Body", $Raw.Trim())
     } 
     $RequestObject.Add("Success", $true);
     return $RequestObject
@@ -108,7 +108,7 @@ function Invoke-SimpleRequest() {
             if ($Request.Headers."Content-Type") {
                 $ContentType = $Request.Headers."Content-Type";
             } 
-            Invoke-WebRequest -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType $ContentType
+            Invoke-WebRequest -Method $Request.Method -Uri $Request.Uri -Headers $Request.Headers -Body $Request.Body -ContentType $ContentType -UseBasicParsing
         }
     }
 }
