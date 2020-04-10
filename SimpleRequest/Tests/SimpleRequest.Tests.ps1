@@ -19,7 +19,7 @@ $data = @{
     "Value"        = "Content"
 }
 
-Describe "$ModuleName Module - Testing Manifest File (.psd1)" {
+Describe "$ModuleName Module" {
     Context "Manifest" {
         It "Should contain RootModule" {
             $ModuleInformation.RootModule | Should Not BeNullOrEmpty
