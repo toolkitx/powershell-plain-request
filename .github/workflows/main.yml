@@ -25,6 +25,7 @@ jobs:
     - name: Run test
       shell: pwsh
       run: |
-      echo "Install Pester"
-      Install-Module -Name Pester -Force
-      Get-Module -Name Pester
+      if (-not (Get-Module -ListAvailable Pester)) {
+        Install-Module Pester -Force
+      }
+      ./SimpleRequest/Tests/SimpleRequest.Tests.ps1
