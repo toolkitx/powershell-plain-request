@@ -23,6 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Run test
+      shell: pwsh
       run: |
       echo "Install Pester"
       Install-Module -Name Pester -Force
