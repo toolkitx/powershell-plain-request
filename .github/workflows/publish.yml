@@ -6,7 +6,7 @@ name: Publish
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,26 +17,25 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
 
-    - name: Install Pester
-      shell: pwsh
-      run: Install-Module Pester -Force -Scope CurrentUser
+      - name: Install Pester
+        shell: pwsh
+        run: Install-Module Pester -Force -Scope CurrentUser
 
-    - name: Run Test
-      env:
-        PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
-      shell: pwsh
-      run: SimpleRequest/Tests/SimpleRequest.Tests.ps1
+      - name: Run Test
+        env:
+          PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
+        shell: pwsh
+        run: SimpleRequest/Tests/SimpleRequest.Tests.ps1
 
-     - name: Install PowerShellGet
-      shell: pwsh
-      run: Install-Module -Name PowerShellGet -Force
-      
-    - name: Publish
-      env:
-        PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
-      shell: pwsh
-      run: tool/publish.ps1  
-      
+      - name: Install PowerShellGet
+        shell: pwsh
+        run: Install-Module -Name PowerShellGet -Force
+
+      - name: Publish
+        env:
+          PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
+        shell: pwsh
+        run: tool/publish.ps1
