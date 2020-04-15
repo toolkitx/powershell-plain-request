@@ -6,7 +6,7 @@ $NewModulePath += ";$ModulePath"
 [Environment]::SetEnvironmentVariable("PSModulePath", $NewModulePath)
 Write-Host $NewModulePath
 
-Import-Module -Name .\SimpleRequest -PassThru
+Import-Module -Name .\SimpleRequest\SimpleRequest.psd1 -PassThru
 $key = [Environment]::GetEnvironmentVariable("PSGalleryAPIKey")
 
 Publish-Module -Name SimpleRequest -NuGetApiKey $key
