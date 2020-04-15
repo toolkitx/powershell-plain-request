@@ -91,12 +91,17 @@ function Invoke-SimpleRequest() {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
         [string]$Syntax,
         [Parameter(Mandatory = $false)]
-        [PSObject]$Context = @{}
+        [PSObject]$Context = @{},
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
+        [PSObject]$Path
     )
     $Spliter = '#{3,}'
+    if ([string]::IsNullOrWhiteSpace($Syntax) -and (-not [string]::IsNullOrWhiteSpace($Path))) {
+        $Syntax = Get-Content -Path $Path -Encoding UTF8 -Raw
+    }
     $RequestSyntaxes = [regex]::Split($Syntax, $Spliter)
     if ($RequestSyntaxes.Length -eq 0) {
         return null

@@ -4,7 +4,9 @@ name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -18,13 +20,9 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     
-    - name: Install Pester
-      shell: pwsh
-      run: Install-Module Pester -Force -Scope CurrentUser
-
-    - name: Run Test
+    - name: Publish
       env:
         PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
       shell: pwsh
-      run: SimpleRequest/Tests/SimpleRequest.Tests.ps1
+      run: tool/publish.ps1  
       

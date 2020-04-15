@@ -91,9 +91,30 @@ GET https://httpbin.org/ip
 GET https://httpbin.org/anything
 ```
 
+### Compose requests from single file
+
+For example, you have a `sample.sr` contains below syntax:
+
+```json
+POST https://httpbin.org/anything
+
+Authorization: AuthToken
+x-custom-header: CustomHeader
+
+{
+    "id": 1,
+    "value": "Value"
+}
+```
+Then you can invoke it like this
+
+```
+Invoke-SimpleRequest -Path .\sample.sr
+```
+
 ### TODO
 
-- [ ] Support compose requests from single file
+- [x] Support compose requests from single file
 - [ ] Predefined dynamic variables
 - [x] Compose several requests in a single syntax, separate by `###`
 - [ ] Break long requests into several lines

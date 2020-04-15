@@ -1,0 +1,9 @@
+POST https://httpbin.org/anything
+
+Authorization: AuthToken
+x-custom-header: CustomHeader
+
+{
+    "id": 1,
+    "value": "Value"
+}
