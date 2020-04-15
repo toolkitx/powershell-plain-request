@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Publish
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -19,7 +19,10 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    
+    - name: Install PowerShellGet
+      shell: pwsh
+      run: Install-Module -Name PowerShellGet -Force
+ 
     - name: Publish
       env:
         PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
