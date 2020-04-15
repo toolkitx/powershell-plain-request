@@ -23,3 +23,6 @@ Write-Host "New Module Path: $NewModulePath"
 Publish-Module -Name SimpleRequest -NuGetApiKey $key
 
 [Environment]::SetEnvironmentVariable("PSModulePath", $OriginalModulePath)
+
+$galleryVersion = (Find-Module -Name SimpleRequest).Version
+Write-Host "New Version Published: v$galleryVersion"
