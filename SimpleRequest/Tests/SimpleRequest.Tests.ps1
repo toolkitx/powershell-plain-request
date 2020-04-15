@@ -26,7 +26,6 @@ Describe "$ModuleName Module" {
         }
 
         It "Should contain ModuleVersion" {
-            [Environment]::GetEnvironmentVariable("PSGalleryAPIKey") | Should Not BeNullOrEmpty
             $ModuleInformation.Version | Should Not BeNullOrEmpty
         }
 
