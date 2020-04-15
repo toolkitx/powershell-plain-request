@@ -461,6 +461,19 @@ Describe "$ModuleName Module" {
             $Content.json.id | Should -eq 1
         }
     }
+
+    Context "Input from file" {
+        It "Should send request defined in file" {
+            $Response = Invoke-SimpleRequest -Path .\TestData\sample.sr
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers.Authorization | Should -eq "AuthToken"
+            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Content = $Response.Content | ConvertFrom-Json
+            $Content.json.id | Should -eq 1
+            $Content.json.value | Should -eq "Value"
+        }
+    }
     
 }
 
