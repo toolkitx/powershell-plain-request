@@ -1,13 +1,18 @@
+$ModulePath = $PSScriptRoot.Replace('\tool', '').Replace('/tool', '')
 
-$ModulePath = $PSScriptRoot.Replace('\tool', '')
-$OriginalModulePath = [Environment]::GetEnvironmentVariable("PSModulePath")
-$NewModulePath = $OriginalModulePath.Replace(";$ModulePath", "")
-$NewModulePath += ";$ModulePath"
-[Environment]::SetEnvironmentVariable("PSModulePath", $NewModulePath)
-Write-Host $NewModulePath
+$galleryVersion = (Find-Module -Name SimpleRequest).Version
+Write-Host "Gallery: v$galleryVersion"
+$ModuleName = "SimpleRequest"
+Get-Module -Name $ModuleName | Remove-Module
+Import-Module -Name "$ModulePath/$ModuleName"
+$localVersion = (Get-Module -Name $ModuleName).Version.ToString()
+Write-Host "New Version: v$localVersion"
+if ($galleryVersion -eq $localVersion) {
+    Write-Host "Same version, skip!"
+    return;
+}
 
 $key = [Environment]::GetEnvironmentVariable("PSGalleryAPIKey")
 
 Publish-Module -Name SimpleRequest -NuGetApiKey $key
-
-[Environment]::SetEnvironmentVariable("PSModulePath", $OriginalModulePath)
+Write-Host "Published: v$localVersion"
