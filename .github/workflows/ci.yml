@@ -23,6 +23,8 @@ jobs:
       run: Install-Module Pester -Force -Scope CurrentUser
 
     - name: Run Test
+      env:
+        PSGalleryAPIKey: ${{ secrets.PSGalleryAPIKey }}
       shell: pwsh
       run: SimpleRequest/Tests/SimpleRequest.Tests.ps1
       

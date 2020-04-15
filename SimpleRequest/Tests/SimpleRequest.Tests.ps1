@@ -19,6 +19,8 @@ $data = @{
     "Value"        = "Content"
 }
 
+Write-Host [Environment]::GetEnvironmentVariable("PSGalleryAPIKey")
+
 Describe "$ModuleName Module" {
     Context "Manifest" {
         It "Should contain RootModule" {
