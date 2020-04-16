@@ -13,16 +13,16 @@ $NewModulePath += ":$ModulePath"
 
 Write-Host "New Module Path: $NewModulePath"
 
-# $localVersion = (Get-Module -Name SimpleRequest).Version.ToString()
-# Write-Host "New Version: v$localVersion"
-# if ($galleryVersion -eq $localVersion) {
-#     Write-Host "Same version, skip!"
-#     return;
-# }
+$localVersion = (Get-Module -Name SimpleRequest).Version.ToString()
+Write-Host "New Version: v$localVersion"
 
-Publish-Module -Name SimpleRequest -NuGetApiKey $key
+if ($galleryVersion -eq $localVersion) {
+    Write-Host "Same version, skip!"
+    return;
+} else {
+    Publish-Module -Name SimpleRequest -NuGetApiKey $key
+    $galleryVersion = (Find-Module -Name SimpleRequest).Version
+    Write-Host "Current Gallery Published: v$galleryVersion"
+}
 
 [Environment]::SetEnvironmentVariable("PSModulePath", $OriginalModulePath)
-
-$galleryVersion = (Find-Module -Name SimpleRequest).Version
-Write-Host "New Version Published: v$galleryVersion"
