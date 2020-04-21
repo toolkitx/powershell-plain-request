@@ -45,7 +45,7 @@ function Get-WebRequestDefinition() {
     )
     $RequestObject = @{};
     $EndpointPattern = "^\s*?(GET|POST|PUT|DELETE|PATCH)\s+(.*?)$"
-    $HeaderPattern = "^\s*?([a-zA-Z\-]+):\s*(.*?)$"
+    $HeaderPattern = "^\s*?([a-zA-Z0-9\-]+):\S*([^\r\f]*?)$"
     $PayloadPattern = "^\s*{([\s\S]*)}\s*$"
 
     $BasicMatches = Get-Matches -Content $Template -Pattern $EndpointPattern
@@ -61,8 +61,12 @@ function Get-WebRequestDefinition() {
     if ($HeaderMatches.Success) {
         $Headers = @{};
         $HeaderMatches | ForEach-Object {
+            $HeaderKey = $_.Groups[1].Value.Trim()
             $HeaderValue = Get-Translation -Template $_.Groups[2] -Context $Context
-            $Headers.Add($_.Groups[1].Value, $HeaderValue.Trim())
+            if ($Headers.ContainsKey($HeaderKey)){
+                $Headers.Remove($HeaderKey)
+            }
+            $Headers.Add($HeaderKey, $HeaderValue.Trim())
         }
         $RequestObject.Add("Headers", $Headers)
     } 

@@ -115,6 +115,8 @@ Invoke-SimpleRequest -Path .\sample.sr
 ### TODO
 
 - [x] Support compose requests from single file
+- [x] Support empty header field value
+- [x] Support headers with same field name, only the last one will be sent, values should be defined as a comma-separated list
 - [ ] Predefined dynamic variables
 - [x] Compose several requests in a single syntax, separate by `###`
 - [ ] Break long requests into several lines

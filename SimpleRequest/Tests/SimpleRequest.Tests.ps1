@@ -17,6 +17,7 @@ $PS1Functions = Get-ChildItem -Path "$ModulePath\Public\*.ps1"
 $data = @{
     "Id"           = 99
     "Value"        = "Content"
+    "FakeToken"    = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 }
 
 Describe "$ModuleName Module" {
@@ -176,6 +177,54 @@ Describe "$ModuleName Module" {
             $Headers.Authorization | Should -eq "AuthToken"
             $Headers."x-custom-header" | Should -eq "CustomHeader"
         }
+
+    }
+
+    Context "Edge Cases" {
+
+        It "Should send empty headers" {
+            $syntax = '
+            POST https://httpbin.org/anything
+            
+            x-empty-header: 
+            x-bearer-token: {{FakeToken}}
+            x-empty-header2: 
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers."x-bearer-token" | Should -eq $data.FakeToken
+            $Headers."x-empty-header" | Should BeNullOrEmpty
+            $Headers."x-empty-header2" | Should BeNullOrEmpty
+            
+        }
+
+        It "Should send last header with same field name" {
+            $syntax = '
+            POST https://httpbin.org/anything
+            
+            x-same-header: first
+            x-same-header: last 
+
+            {
+                "id": {{Id}},
+                "value": "{{Value}}"
+            }
+            '
+
+            $Response = Invoke-SimpleRequest -Syntax $syntax
+            $Response.StatusCode | Should -eq 200
+            $Headers = ($Response.Content | ConvertFrom-Json).headers
+            $Headers."x-same-header" | Should -eq "last"
+            
+        }
+        
     }
 
     Context "Request Payload" {
