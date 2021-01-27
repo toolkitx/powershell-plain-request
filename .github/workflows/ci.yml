@@ -20,7 +20,7 @@ jobs:
     
     - name: Install Pester
       shell: pwsh
-      run: Install-Module Pester -Force -Scope CurrentUser
+      run: Install-Module Pester -RequiredVersion 5.1.1 -Force -Scope CurrentUser
 
     - name: Run Test
       env:

@@ -3,7 +3,6 @@ $ModuleName = Split-Path -Path $ModulePath -Leaf
 
 # Make sure one or multiple versions of the module are not loaded
 Get-Module -Name $ModuleName | Remove-Module
-
 # Import the module and store the information about the module
 $ModuleInformation = Import-Module -Name "$ModulePath\$ModuleName.psd1" -PassThru
 $ModuleInformation | Format-List
@@ -11,7 +10,7 @@ $ModuleInformation | Format-List
 # Get the functions present in the Manifest
 $ExportedFunctions = $ModuleInformation.ExportedFunctions.Values.Name
 
-# Get the functions present in the Public folder
+# Get the functions present in the Public folders
 $PS1Functions = Get-ChildItem -Path "$ModulePath\Public\*.ps1"
 
 $data = @{
@@ -23,34 +22,34 @@ $data = @{
 Describe "$ModuleName Module" {
     Context "Manifest" {
         It "Should contain RootModule" {
-            $ModuleInformation.RootModule | Should Not BeNullOrEmpty
+            $ModuleInformation.RootModule | Should -Not -BeNullOrEmpty
         }
 
         It "Should contain ModuleVersion" {
-            $ModuleInformation.Version | Should Not BeNullOrEmpty
+            $ModuleInformation.Version | Should -Not -BeNullOrEmpty
         }
 
         It "Should contain GUID" {
-            $ModuleInformation.Guid | Should Not BeNullOrEmpty
+            $ModuleInformation.Guid | Should -Not -BeNullOrEmpty
         }
 
         It "Should contain Author" {
-            $ModuleInformation.Author | Should Not BeNullOrEmpty
+            $ModuleInformation.Author | Should -Not -BeNullOrEmpty
         }
 
         It "Should contain Description" {
-            $ModuleInformation.Description | Should Not BeNullOrEmpty
+            $ModuleInformation.Description | Should -Not -BeNullOrEmpty
         }
 
         It "Compare the count of Function Exported and the PS1 files found" {
             $status = $ExportedFunctions.Count -eq $PS1Functions.Count
-            $status | Should Be $true
+            $status | Should -BeTrue
         }
 
         It "Compare the missing function" {
             If ($ExportedFunctions.count -ne $PS1Functions.count) {
                 $Compare = Compare-Object -ReferenceObject $ExportedFunctions -DifferenceObject $PS1Functions.Basename
-                $Compare.InputObject -Join ',' | Should BeNullOrEmpty
+                $Compare.InputObject -Join ',' | Should -BeNullOrEmpty
             }
         }
     }
@@ -61,7 +60,7 @@ Describe "$ModuleName Module" {
             $syntax = "GET https://httpbin.org/get"
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
         }
 
         It "Should send POST request" {
@@ -69,7 +68,7 @@ Describe "$ModuleName Module" {
             $syntax = "POST https://httpbin.org/post"
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
         }
 
         It "Should send PUT request" {
@@ -77,7 +76,7 @@ Describe "$ModuleName Module" {
             $syntax = "PUT https://httpbin.org/put"
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
         }
 
         It "Should send PATCH request" {
@@ -85,7 +84,7 @@ Describe "$ModuleName Module" {
             $syntax = "PATCH https://httpbin.org/patch"
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
         }
 
         It "Should send DELETE request" {
@@ -93,7 +92,7 @@ Describe "$ModuleName Module" {
             $syntax = "DELETE https://httpbin.org/delete"
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
         }
     }
 
@@ -108,10 +107,10 @@ Describe "$ModuleName Module" {
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
         }
 
         It "Should send POST headers" {
@@ -124,10 +123,10 @@ Describe "$ModuleName Module" {
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
         }
 
         It "Should send PUT headers" {
@@ -140,10 +139,10 @@ Describe "$ModuleName Module" {
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
         }
 
         It "Should send PATCH headers" {
@@ -156,10 +155,10 @@ Describe "$ModuleName Module" {
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
         }
 
         It "Should send DELETE headers" {
@@ -172,10 +171,10 @@ Describe "$ModuleName Module" {
             "
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
         }
 
     }
@@ -197,11 +196,11 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers."x-bearer-token" | Should -eq $data.FakeToken
-            $Headers."x-empty-header" | Should BeNullOrEmpty
-            $Headers."x-empty-header2" | Should BeNullOrEmpty
+            $Headers."x-bearer-token" | Should -BeExactly $data.FakeToken
+            $Headers."x-empty-header" | Should -BeNullOrEmpty
+            $Headers."x-empty-header2" | Should -BeNullOrEmpty
             
         }
 
@@ -219,9 +218,9 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers."x-same-header" | Should -eq "last"
+            $Headers."x-same-header" | Should -BeExactly "last"
             
         }
         
@@ -242,12 +241,12 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json | Should BeNullOrEmpty
+            $Content.json | Should -BeNullOrEmpty
         }
 
         It "Should send POST payload" {
@@ -265,13 +264,13 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
-            $Content.json.value | Should -eq "Value"
+            $Content.json.id | Should -BeExactly 1
+            $Content.json.value | Should -BeExactly "Value"
         }
 
         It "Should send PUT payload" {
@@ -288,13 +287,13 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
-            $Content.json.value | Should -eq "Value"
+            $Content.json.id | Should -BeExactly 1
+            $Content.json.value | Should -BeExactly "Value"
         }
 
         It "Should send PATCH payload" {
@@ -311,13 +310,13 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
-            $Content.json.value | Should -eq "Value"
+            $Content.json.id | Should -BeExactly 1
+            $Content.json.value | Should -BeExactly "Value"
         }
 
         It "Should send DELETE payload" {
@@ -334,13 +333,13 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
-            $Content.json.value | Should -eq "Value"
+            $Content.json.id | Should -BeExactly 1
+            $Content.json.value | Should -BeExactly "Value"
         }
     }
 
@@ -360,14 +359,14 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq $data.Id
+            $args.id | Should -BeExactly $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq $data.Value
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly $data.Value
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json | Should BeNullOrEmpty
+            $Content.json | Should -BeNullOrEmpty
         }
 
         It "Should POST support variable" {
@@ -385,15 +384,15 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq $data.Id
+            $args.id | Should -BeExactly $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq $data.Value
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly $data.Value
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
+            $Content.json.id | Should -BeExactly $data.Id
+            $Content.json.value | Should -BeExactly $data.Value
         }
 
         It "Should PUT support variable" {
@@ -411,15 +410,15 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq $data.Id
+            $args.id | Should -BeExactly $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq $data.Value
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly $data.Value
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
+            $Content.json.id | Should -BeExactly $data.Id
+            $Content.json.value | Should -BeExactly $data.Value
         }
 
         It "Should PATCH support variable" {
@@ -437,15 +436,15 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq $data.Id
+            $args.id | Should -BeExactly $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq $data.Value
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly $data.Value
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
+            $Content.json.id | Should -BeExactly $data.Id
+            $Content.json.value | Should -BeExactly $data.Value
         }
 
         It "Should DELETE support variable" {
@@ -463,15 +462,15 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax -Context $data
-            $Response.StatusCode | Should -eq 200
+            $Response.StatusCode | Should -BeExactly 200
             $args = ($Response.Content | ConvertFrom-Json).args
-            $args.id | Should -eq $data.Id
+            $args.id | Should -BeExactly $data.Id
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq $data.Value
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly $data.Value
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq $data.Id
-            $Content.json.value | Should -eq $data.Value
+            $Content.json.id | Should -BeExactly $data.Id
+            $Content.json.value | Should -BeExactly $data.Value
         }
     }
 
@@ -496,31 +495,31 @@ Describe "$ModuleName Module" {
             '
 
             $Response = Invoke-SimpleRequest -Syntax $syntax
-            $Response.Count | Should -eq 2
+            $Response.Count | Should -BeExactly 2
 
             $Response1 = $Response[0]
-            $Response1.StatusCode | Should -eq 200
+            $Response1.StatusCode | Should -BeExactly 200
             $Headers = ($Response1.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
 
             $Response2 = $Response[1]
-            $Response2.StatusCode | Should -eq 200
+            $Response2.StatusCode | Should -BeExactly 200
             $Content = $Response2.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
+            $Content.json.id | Should -BeExactly 1
         }
     }
 
     Context "Input from file" {
         It "Should send request defined in file" {
-            $Response = Invoke-SimpleRequest -Path .\TestData\sample.sr
-            $Response.StatusCode | Should -eq 200
+            $Response = Invoke-SimpleRequest -Path "$($PSScriptRoot)\..\..\TestData\sample.sr"
+            $Response.StatusCode | Should -BeExactly 200
             $Headers = ($Response.Content | ConvertFrom-Json).headers
-            $Headers.Authorization | Should -eq "AuthToken"
-            $Headers."x-custom-header" | Should -eq "CustomHeader"
+            $Headers.Authorization | Should -BeExactly "AuthToken"
+            $Headers."x-custom-header" | Should -BeExactly "CustomHeader"
             $Content = $Response.Content | ConvertFrom-Json
-            $Content.json.id | Should -eq 1
-            $Content.json.value | Should -eq "Value"
+            $Content.json.id | Should -BeExactly 1
+            $Content.json.value | Should -BeExactly "Value"
         }
     }
     
